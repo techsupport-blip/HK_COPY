@@ -1,0 +1,134 @@
+// Hearth data model.
+//
+// Note: SQLite (the MVP datasource) does not support Prisma's native `Json`
+// type, so structured fields (taste profiles, score breakdowns, string arrays)
+// are stored as JSON-encoded `String`s and (de)serialized in the service layer.
+// Switching to Postgres later is a one-line datasource change; those columns can
+// then be migrated to native `Json`.
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String            @id @default(cuid())
+  email            String            @unique
+  passwordHash     String
+  refreshTokenHash String?
+  createdAt        DateTime          @default(now())
+
+  profile          Profile?
+  interviewSession InterviewSession?
+  matchesAsA       Match[]           @relation("MatchUserA")
+  matchesAsB       Match[]           @relation("MatchUserB")
+  messages         Message[]
+}
+
+model Profile {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName         String
+  age                 Int?
+  gender              String?
+  seekingGenders      String   @default("[]") // JSON: Gender[]
+  bio                 String   @default("")
+  city                String?
+  lat                 Float?
+  lng                 Float?
+  photoUrls           String   @default("[]") // JSON: string[]
+  tasteProfile        String? // JSON: TasteProfile
+  tasteProfileSummary String   @default("")
+  onboardingComplete  Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model InterviewSession {
+  id        String          @id @default(cuid())
+  userId    String          @unique
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    String          @default("in_progress") // InterviewStatus
+  turns     InterviewTurn[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model InterviewTurn {
+  id        String           @id @default(cuid())
+  sessionId String
+  session   InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String // InterviewRole
+  content   String
+  order     Int
+  createdAt DateTime         @default(now())
+
+  @@index([sessionId])
+}
+
+model Match {
+  id                 String               @id @default(cuid())
+  // Stored canonically with userAId < userBId to dedupe pairs.
+  userAId            String
+  userBId            String
+  userA              User                 @relation("MatchUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB              User                 @relation("MatchUserB", fields: [userBId], references: [id], onDelete: Cascade)
+  compatibilityScore Float
+  scoreBreakdown     String // JSON: ScoreBreakdown
+  rationale          String               @default("")
+  userAState         String               @default("pending") // MatchState
+  userBState         String               @default("pending") // MatchState
+  mutual             Boolean              @default(false)
+  surfacedDate       String // YYYY-MM-DD batch key
+  createdAt          DateTime             @default(now())
+
+  conversation       Conversation?
+  activities         ActivitySuggestion[]
+
+  @@unique([userAId, userBId])
+  @@index([userAId])
+  @@index([userBId])
+}
+
+model ActivitySuggestion {
+  id            String   @id @default(cuid())
+  matchId       String
+  match         Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  title         String
+  description   String
+  category      String // ActivityCategory
+  rationale     String
+  mockVenueName String
+  order         Int
+  createdAt     DateTime @default(now())
+
+  @@index([matchId])
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  matchId       String    @unique
+  match         Match     @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  lastMessageAt DateTime?
+  createdAt     DateTime  @default(now())
+  messages      Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String? // null for wingman/system notes
+  sender         User?        @relation(fields: [senderId], references: [id], onDelete: SetNull)
+  kind           String       @default("user") // MessageKind
+  content        String
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+}
