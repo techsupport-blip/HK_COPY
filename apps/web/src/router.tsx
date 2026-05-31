@@ -11,6 +11,7 @@ import { MatchesPage } from "./routes/matches";
 import { MatchDetailPage } from "./routes/match-detail";
 import { ConversationsPage } from "./routes/conversations";
 import { ChatPage } from "./routes/chat";
+import { ProfilePage } from "./routes/profile";
 
 const rootRoute = createRootRoute({ component: RootLayout });
 
@@ -58,6 +59,12 @@ const chatRoute = createRoute({
   component: ChatPage,
 });
 
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/profile",
+  component: ProfilePage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -66,6 +73,7 @@ const routeTree = rootRoute.addChildren([
   matchDetailRoute,
   conversationsRoute,
   chatRoute,
+  profileRoute,
 ]);
 
 export const router = createRouter({ routeTree });

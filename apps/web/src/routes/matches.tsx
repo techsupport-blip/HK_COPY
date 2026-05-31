@@ -5,6 +5,7 @@ import {
   useMatches,
   useMe,
 } from "@hearth/client";
+import { Chips } from "../components/Chips";
 
 export function MatchesPage() {
   const navigate = useNavigate();
@@ -18,8 +19,22 @@ export function MatchesPage() {
     }
   }, [me.data, navigate]);
 
+  // Highlight interests the viewer shares with each candidate.
+  const myInterests = new Set(
+    (me.data?.profile.interests ?? []).map((i) => i.toLowerCase()),
+  );
+
   if (matches.isLoading || me.isLoading) {
-    return <div className="center-state">Finding your people…</div>;
+    return (
+      <div>
+        <h1 className="title">Today's matches</h1>
+        <div className="match-grid" style={{ marginTop: 22 }}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="skeleton skel-card" />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   const list = matches.data ?? [];
@@ -77,6 +92,7 @@ export function MatchesPage() {
                   <span className="score-pill">{Math.round(m.compatibilityScore)}%</span>
                 </div>
                 <p className="teaser">{m.rationaleTeaser}</p>
+                <Chips items={m.interests} shared={myInterests} max={4} />
                 {m.mutual && <span className="mutual-tag">✦ It's a match</span>}
               </div>
             </Link>

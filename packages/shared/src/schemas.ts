@@ -48,6 +48,7 @@ export const ProfileDTO = z.object({
   bio: z.string(),
   city: z.string().nullable(),
   photoUrls: z.array(z.string()),
+  interests: z.array(z.string()),
   tasteProfileSummary: z.string(),
   onboardingComplete: z.boolean(),
 });
@@ -121,6 +122,7 @@ export const MatchSummaryDTO = z.object({
   age: z.number().int().nullable(),
   city: z.string().nullable(),
   photoUrls: z.array(z.string()),
+  interests: z.array(z.string()),
   compatibilityScore: z.number(),
   rationaleTeaser: z.string(),
   myState: MatchState,

@@ -461,3 +461,152 @@ button {
   color: var(--text-dim);
   padding: 20px 0;
 }
+
+/* Interest chips */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  background: rgba(255, 214, 165, 0.08);
+  border: 1px solid rgba(255, 214, 165, 0.25);
+  border-radius: 999px;
+  padding: 4px 10px;
+  text-transform: capitalize;
+}
+
+.chip.shared {
+  color: #2a1410;
+  background: linear-gradient(135deg, var(--gold), var(--ember-2));
+  border-color: transparent;
+}
+
+/* Skeleton loaders */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elev) 50%, var(--bg-card) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 8px;
+}
+
+.skel-card {
+  height: 320px;
+  border-radius: var(--radius);
+}
+
+/* Match celebration overlay */
+.celebrate {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 7, 16, 0.78);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadein 0.25s ease;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.7); opacity: 0; }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.celebrate-card {
+  text-align: center;
+  padding: 36px 30px;
+  max-width: 360px;
+  animation: pop 0.4s ease;
+}
+
+.celebrate-emoji {
+  font-size: 54px;
+  filter: drop-shadow(0 0 18px var(--ember));
+}
+
+.celebrate h2 {
+  font-size: 26px;
+  margin: 12px 0 6px;
+}
+
+.avatar-pair {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.avatar-pair img {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--ember);
+}
+
+/* Profile page */
+.profile-photos {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.profile-photos img {
+  width: 88px;
+  height: 110px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.seek-toggles {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toggle {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--text-dim);
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.toggle.on {
+  color: #2a1410;
+  background: linear-gradient(135deg, var(--gold), var(--ember-2));
+  border-color: transparent;
+}
+
+.saved-note {
+  color: var(--good);
+  font-size: 13px;
+  font-weight: 600;
+}

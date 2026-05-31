@@ -16,8 +16,15 @@ import type {
   MessageKind,
   ProfileDTO,
   ScoreBreakdownDTO,
+  TasteProfile,
 } from "@hearth/shared";
 import { parseJson } from "./json.js";
+
+/** Pull the interest tags out of a profile's stored taste profile JSON. */
+function profileInterests(p: Profile): string[] {
+  const taste = parseJson<TasteProfile | null>(p.tasteProfile, null);
+  return taste?.interests ?? [];
+}
 
 export function toProfileDTO(p: Profile): ProfileDTO {
   return {
@@ -30,6 +37,7 @@ export function toProfileDTO(p: Profile): ProfileDTO {
     bio: p.bio,
     city: p.city,
     photoUrls: parseJson<string[]>(p.photoUrls, []),
+    interests: profileInterests(p),
     tasteProfileSummary: p.tasteProfileSummary,
     onboardingComplete: p.onboardingComplete,
   };
@@ -57,6 +65,7 @@ export function toMatchSummaryDTO(
     age: otherProfile.age,
     city: otherProfile.city,
     photoUrls: parseJson<string[]>(otherProfile.photoUrls, []),
+    interests: profileInterests(otherProfile),
     compatibilityScore: match.compatibilityScore,
     rationaleTeaser: teaser(match.rationale),
     myState,

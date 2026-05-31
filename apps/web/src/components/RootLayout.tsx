@@ -37,6 +37,9 @@ export function RootLayout() {
             <Link to="/chats" activeProps={{ className: "active" }}>
               Chats
             </Link>
+            <Link to="/profile" activeProps={{ className: "active" }}>
+              Profile
+            </Link>
             <button
               className="nav"
               style={{ background: "none", border: "none", color: "var(--text-dim)", fontWeight: 600 }}

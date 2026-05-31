@@ -3,6 +3,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import type { UpdateProfileRequest } from "@hearth/shared";
 import { useApiClient } from "./context.js";
 
 export const queryKeys = {
@@ -18,6 +19,15 @@ export const queryKeys = {
 export function useMe() {
   const client = useApiClient();
   return useQuery({ queryKey: queryKeys.me, queryFn: () => client.me() });
+}
+
+export function useUpdateProfile() {
+  const client = useApiClient();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: UpdateProfileRequest) => client.updateProfile(body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.me }),
+  });
 }
 
 export function useInterviewState() {
