@@ -19,25 +19,33 @@ interface AuthContextValue {
 
 const ApiContext = createContext<AuthContextValue | null>(null);
 
-export function ApiProvider({
-  children,
-  ...options
-}: ApiClientOptions & { children: ReactNode }) {
-  const [isAuthenticated, setAuthenticated] = useState(() => {
-    return options.storage.getAccess() != null;
-  });
+type ApiProviderProps = { children: ReactNode } & (
+  | ApiClientOptions
+  /** Inject a pre-built client (e.g. an in-browser mock for the demo build). */
+  | { client: ApiClient; onLogout?: () => void }
+);
+
+export function ApiProvider({ children, ...props }: ApiProviderProps) {
+  const injected = "client" in props ? props.client : null;
+
+  const [isAuthenticated, setAuthenticated] = useState(() =>
+    injected
+      ? injected.isAuthenticated()
+      : (props as ApiClientOptions).storage.getAccess() != null,
+  );
 
   const client = useMemo(
     () =>
+      injected ??
       new ApiClient({
-        ...options,
+        ...(props as ApiClientOptions),
         onLogout: () => {
           setAuthenticated(false);
-          options.onLogout?.();
+          props.onLogout?.();
         },
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [options.baseUrl],
+    [injected],
   );
 
   const login = useCallback(

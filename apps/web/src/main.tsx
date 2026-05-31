@@ -5,27 +5,45 @@ import { RouterProvider } from "@tanstack/react-router";
 import {
   ApiProvider,
   createLocalStorageTokenStorage,
+  type ApiClient,
 } from "@hearth/client";
 import { router } from "./router";
+import { MockApiClient } from "./demo/mockClient";
 import "./styles.css";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
 });
 
-const storage = createLocalStorageTokenStorage();
-const baseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+// In the standalone demo build there is no backend: swap in an in-browser mock
+// client and auto-authenticate as the demo user.
+const isDemo = import.meta.env.MODE === "demo";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <ApiProvider
-      baseUrl={baseUrl}
-      storage={storage}
-      onLogout={() => queryClient.clear()}
-    >
+function Root() {
+  if (isDemo) {
+    const client: ApiClient = new MockApiClient();
+    return (
+      <ApiProvider client={client}>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </ApiProvider>
+    );
+  }
+
+  const storage = createLocalStorageTokenStorage();
+  const baseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+  return (
+    <ApiProvider baseUrl={baseUrl} storage={storage} onLogout={() => queryClient.clear()}>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>
     </ApiProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <Root />
   </React.StrictMode>,
 );

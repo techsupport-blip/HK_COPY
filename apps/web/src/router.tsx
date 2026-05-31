@@ -1,4 +1,5 @@
 import {
+  createHashHistory,
   createRootRoute,
   createRoute,
   createRouter,
@@ -76,7 +77,14 @@ const routeTree = rootRoute.addChildren([
   profileRoute,
 ]);
 
-export const router = createRouter({ routeTree });
+// The standalone demo is served as a single file from a CDN, so use hash
+// history (paths in the URL fragment) — robust on any static host.
+const isDemo = import.meta.env.MODE === "demo";
+
+export const router = createRouter({
+  routeTree,
+  ...(isDemo ? { history: createHashHistory() } : {}),
+});
 
 declare module "@tanstack/react-router" {
   interface Register {
