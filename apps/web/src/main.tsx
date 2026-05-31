@@ -42,8 +42,18 @@ function Root() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <Root />
-  </React.StrictMode>,
-);
+function mount() {
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      <Root />
+    </React.StrictMode>,
+  );
+}
+
+// The demo build runs as a classic (non-deferred) script, so it may execute
+// before #root is parsed — wait for the DOM in that case.
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", mount);
+} else {
+  mount();
+}
